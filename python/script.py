@@ -150,12 +150,19 @@ def is_valid_cidr(cidr):
 
 
 def is_valid_port(port):
-    """Check if the provided value is a valid application port number."""
-    try:
-        port_number = int(port)
-        return 0 <= port_number <= 65535
-    except ValueError:
-        return False
+    """Check if the provided value is a valid application port number or port range."""
+    if ':' in port:
+        try:
+            start_port, end_port = map(int, port.split(':'))
+            return 0 <= start_port <= 65535 and 0 <= end_port <= 65535 and start_port <= end_port
+        except ValueError:
+            return False
+    else:
+        try:
+            port_number = int(port)
+            return 0 <= port_number <= 65535
+        except ValueError:
+            return False
 
 
 def is_valid_protocol(protocol):
