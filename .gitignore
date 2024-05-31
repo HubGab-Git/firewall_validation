@@ -1,0 +1,103 @@
+# Local .terraform directories
+**/.terraform/*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+# Crash log files
+crash.log
+crash.*.log
+
+# Exclude all .tfvars files, which are likely to contain sensitive data, such as
+# password, private keys, and other secrets. These should not be part of version 
+# control as they are data points which are potentially sensitive and subject 
+# to change depending on the environment.
+*.tfvars
+*.tfvars.json
+
+# Ignore override files as they are usually used to override resources locally and so
+# are not checked in
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Include override files you do wish to add to version control using negated pattern
+# !example_override.tf
+
+# Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
+# example: *tfplan*
+
+# Ignore CLI configuration files
+.terraformrc
+terraform.rc
+*.test
+/vendor
+/dist
+tflint-ruleset-*
+!tflint-ruleset-*/
+# Binaries for programs and plugins
+bin
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# MacOS finder files
+.DS_Store
+**/.DS_Store
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+/.idea/
+/.vscode/
+file:/
+/resources
+/vendor
+/site
+
+# Log Files
+*.log
+
+# ci/cd binaries
+.bin
+
+# kics configuration file
+kics.config
+
+# Results
+results.*
+platforms.json
+gl-sast-results.json
+sonarqube-results.json
+cyclonedx-results.xml
+junit-results.xml
+
+# Sarif files
+*.sarif
+!e2e/fixtures/E2E_CLI_079_RESULT.sarif
+!e2e/fixtures/E2E_CLI_080_RESULT.sarif
+
+# coverage report
+coverage.html
+
+# Local files for tests
+/local-files
+
+# goreleaser
+dist
+
+# debug payload
+payload.json
+
+# ANTLR files
+.antlr
+*.zip
+plan
+/bash/*
