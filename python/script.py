@@ -31,17 +31,15 @@ def process_set_files(path):
         file_path = os.path.join(path, file)
         
         with open(file_path, 'r', newline='') as csvfile:
-            reader = csv.reader(csvfile, delimiter=';')
+            reader = csv.reader(csvfile, delimiter=',', quotechar='"',quoting=csv.QUOTE_ALL, skipinitialspace=True)
             for row in reader:
-                num_columns = len(row[1].split(','))
-                if num_columns > max_columns:
-                    max_columns = num_columns
+                max_columns = max(max_columns, len(row))
 
             csvfile.seek(0)
             is_first_row = True
             for row in reader:
                 key = row[0]
-                list_of_values = row[1].split(',')
+                list_of_values = row[1:max_columns]
 
                 if file == 'ip_sets.csv':
                     list_of_values = validate_values(list_of_values, is_first_row, max_columns, 'cidr')
@@ -72,7 +70,7 @@ def process_rules_files(path, ip_sets_keys, port_sets_keys):
         output_path = os.path.join(path, f'f_{file}')
         
         with open(file_path, 'r', newline='') as infile:
-            reader = csv.DictReader(infile, delimiter=';')
+            reader = csv.DictReader(infile, delimiter=',', quotechar='"',quoting=csv.QUOTE_ALL, skipinitialspace=True)
             fieldnames = reader.fieldnames
 
             with open(output_path, 'w', newline='') as outfile:
@@ -98,6 +96,8 @@ def check_and_transform(value, field_name, keys):
             raise ValueError(f"Invalid {field_name} value: {value}. Must be a CIDR block or key from IP sets prefixed with $.")
     elif field_name == 'destination_port':
         if all(is_valid_port(part) for part in parts):
+            if ':' in value:
+                return value
             return f'[{value}]'
         elif value.startswith('$') and value.lstrip('$') in keys:
             return value
