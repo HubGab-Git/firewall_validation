@@ -27,37 +27,27 @@ def process_set_files(path):
     ports, ips = [], []
 
     for file in set_files:
-        max_columns = 0
         file_path = os.path.join(path, file)
         
         with open(file_path, 'r', newline='') as csvfile:
-            reader = csv.reader(csvfile, delimiter=',', quotechar='"',quoting=csv.QUOTE_ALL, skipinitialspace=True)
-            for row in reader:
-                max_columns = max(max_columns, len(row))
-
-            csvfile.seek(0)
-            is_first_row = True
+            reader = csv.reader(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL, skipinitialspace=True)
+            next(reader)  # Skip header row
             for row in reader:
                 key = row[0]
-                list_of_values = row[1:max_columns]
+                list_of_values = row[1:]
+                list_of_values = [value for value in list_of_values if value]  # Remove empty values
 
                 if file == 'ip_sets.csv':
-                    list_of_values = validate_values(list_of_values, is_first_row, max_columns, 'cidr')
+                    list_of_values = validate_values(list_of_values, False, 0, 'cidr')
+                    formatted_values = ','.join(f'"{value}"' for value in list_of_values)
+                    ips.append([key, f'[{formatted_values}]'])
                 elif file == 'port_sets.csv':
-                    list_of_values = validate_values(list_of_values, is_first_row, max_columns, 'port')
+                    list_of_values = validate_values(list_of_values, False, 0, 'port')
+                    formatted_values = ','.join(f'"{value}"' for value in list_of_values)
+                    ports.append([key, f'[{formatted_values}]'])
 
-                while len(list_of_values) < max_columns:
-                    list_of_values.append('')
-
-                new_row = [key] + list_of_values
-                if file == 'port_sets.csv':
-                    ports.append(new_row)
-                else:
-                    ips.append(new_row)
-                is_first_row = False
-
-    save_to_csv(os.path.join(path, 'f_port_sets.csv'), ports)
-    save_to_csv(os.path.join(path, 'f_ip_sets.csv'), ips)
+    save_to_csv(os.path.join(path, 'f_ip_sets.csv'), ips, 'cidr')
+    save_to_csv(os.path.join(path, 'f_port_sets.csv'), ports, 'port')
 
     return ips, ports
 
@@ -70,7 +60,7 @@ def process_rules_files(path, ip_sets_keys, port_sets_keys):
         output_path = os.path.join(path, f'f_{file}')
         
         with open(file_path, 'r', newline='') as infile:
-            reader = csv.DictReader(infile, delimiter=',', quotechar='"',quoting=csv.QUOTE_ALL, skipinitialspace=True)
+            reader = csv.DictReader(infile, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL, skipinitialspace=True)
             fieldnames = reader.fieldnames
 
             with open(output_path, 'w', newline='') as outfile:
@@ -133,10 +123,11 @@ def validate_values(values, is_first_row, max_columns, value_type):
                 values.append(get_default_label(idx))
     return values
 
-def save_to_csv(file_path, data):
+def save_to_csv(file_path, data, column_name):
     """Save data to CSV file."""
     with open(file_path, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
+        writer.writerow(['key', column_name])  # Write the header
         writer.writerows(data)
 
 
@@ -185,13 +176,13 @@ def main(path):
     port_sets_keys = [row[0] for row in ports]
     process_rules_files(path, ip_sets_keys, port_sets_keys)
     print(json.dumps({
-        'ip_sets_formated_file': os.path.join(path, f'f_ip_sets.csv'),
-        'port_sets_formated_file': os.path.join(path, f'f_port_sets.csv'),
-        'rules_dev_formated_file': os.path.join(path, f'f_rules_dev.csv'),
-        'rules_prod_formated_file': os.path.join(path, f'f_rules_prod.csv'),
-        'rules_shared_formated_file': os.path.join(path, f'f_rules_shared.csv'),
-        'rules_uat_formated_file': os.path.join(path, f'f_rules_uat.csv'),
-        }))
+        'ip_sets_formated_file': os.path.join(path, 'f_ip_sets.csv'),
+        'port_sets_formated_file': os.path.join(path, 'f_port_sets.csv'),
+        'rules_dev_formated_file': os.path.join(path, 'f_rules_dev.csv'),
+        'rules_prod_formated_file': os.path.join(path, 'f_rules_prod.csv'),
+        'rules_shared_formated_file': os.path.join(path, 'f_rules_shared.csv'),
+        'rules_uat_formated_file': os.path.join(path, 'f_rules_uat.csv'),
+    }))
 
 
 if __name__ == "__main__":

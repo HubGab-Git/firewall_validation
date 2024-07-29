@@ -29,12 +29,7 @@ resource "aws_networkfirewall_rule_group" "example" {
         content {
           key = ip_sets.value.key
           ip_set {
-            definition = compact([
-              ip_sets.value.cidr1,
-              ip_sets.value.cidr2,
-              ip_sets.value.cidr3,
-              ip_sets.value.cidr4,
-            ])
+            definition = jsondecode(ip_sets.value.cidr)
           }
         }
       }
@@ -43,13 +38,7 @@ resource "aws_networkfirewall_rule_group" "example" {
         content {
           key = port_sets.value.key
           port_set {
-            definition = compact([
-              port_sets.value.port1,
-              port_sets.value.port2,
-              port_sets.value.port3,
-              port_sets.value.port4,
-              port_sets.value.port5
-            ])
+            definition = jsondecode(port_sets.value.port)
           }
         }
       }
